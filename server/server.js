@@ -24,8 +24,8 @@ const users = {
   'admin': {
     passwordHash: bcrypt.hashSync('admin', 10),
     typingProfile: {
-      dwellTimes: [100, 80, 90],
-      flightTimes: [120, 100],
+      dwellTimes: [100, 80, 90, 100, 100],
+      flightTimes: [120, 100, 100, 100, 100],
       maxErrorRate: 0.05,
     }
   }
@@ -75,8 +75,13 @@ app.post('/login', (req, res) => {
   );
   
   console.log(`Dwell Diff: ${dwellDiff}, Flight Diff: ${flightDiff}, Error Rate: ${errorRate}`);
-  
-  if (dwellDiff < 100 && flightDiff < 120 && errorRate <= user.typingProfile.maxErrorRate) {
+
+  const sumDwellTimes = user.typingProfile.dwellTimes.reduce((acc, val) => acc + val, 0);
+  const avgDwellTimes = sumDwellTimes / user.typingProfile.dwellTimes.length;
+  const sumFlightTimes = user.typingProfile.flightTimes.reduce((acc, val) => acc + val, 0);
+  const avgFlightTimes = sumFlightTimes / user.typingProfile.flightTimes.length;
+
+  if (dwellDiff < avgDwellTimes && flightDiff < avgFlightTimes && errorRate <= user.typingProfile.maxErrorRate) {
     return res.json({ message: 'Login Successful 🎯' });
   } else {
     return res.status(401).json({ message: 'Typing style mismatch ❌' });

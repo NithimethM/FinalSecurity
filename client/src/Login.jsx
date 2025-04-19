@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 
+const specialKeys = [
+  'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab',
+  'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'Home', 'End', 'PageUp', 'PageDown', 'Insert', 'Delete',
+  'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+  'ScrollLock', 'Pause', 'NumLock', 'PrintScreen', 'ContextMenu',
+  'Escape', 'Enter'
+];
+
+// Check if key is a special/modifier key that should be filtered
+const isSpecialKey = (key) => {
+  return specialKeys.includes(key) || key.startsWith('Dead');
+};
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -15,26 +28,30 @@ const LoginPage = () => {
   const lastKey = useRef(null);
 
   const handleKeyDown = (e) => {
-    const now = Date.now();
+    const now = performance.now();
     const key = e.key;
-    setTimingData(prev => [...prev, { key, type: 'keydown', time: now }]);
+    if (!isSpecialKey(key)) {
+      setTimingData(prev => [...prev, { key, type: 'keydown', time: now }]);
 
-    if (lastKeyUpTime.current !== null) {
-      const flightTime = now - lastKeyUpTime.current;
-      setFlightTimes(prev => [...prev, { from: lastKey.current, to: key, flightTime }]);
+      if (lastKeyUpTime.current !== null) {
+        const flightTime = now - lastKeyUpTime.current;
+        setFlightTimes(prev => [...prev, { from: lastKey.current, to: key, flightTime }]);
+      }
+
+      if (key === 'Backspace' || key === 'Delete') {
+        setErrorCount(prev => prev + 1);
+      }
+
+      setTotalKeysPressed(prev => prev + 1);
     }
-
-    if (key === 'Backspace' || key === 'Delete') {
-      setErrorCount(prev => prev + 1);
-    }
-
-    setTotalKeysPressed(prev => prev + 1);
   };
 
   const handleKeyUp = (e) => {
-    const now = Date.now();
+    const now = performance.now();
     const key = e.key;
-    setTimingData(prev => [...prev, { key, type: 'keyup', time: now }]);
+    if (!isSpecialKey(key)) {
+      setTimingData(prev => [...prev, { key, type: 'keyup', time: now }]);
+    }
     lastKeyUpTime.current = now;
     lastKey.current = key;
   };
@@ -51,9 +68,17 @@ const LoginPage = () => {
         errorRate: errorCount / totalKeysPressed,
       });
       alert(response.data.message);
+
+      setEmail('');
+      setPassword('');
+      setTimingData([]);
+      setFlightTimes([]);
+      setErrorCount(0);
+      setTotalKeysPressed(0);
     } catch (error) {
       console.error(error);
-      alert('Login failed');
+      const err_msg = error.response?.data?.message;
+      alert('Login failed: ' + err_msg);
     }
   };
   const navigate = useNavigate();
