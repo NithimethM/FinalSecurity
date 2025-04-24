@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import axios from 'axios'; //send HTTP requests to the backend
 import { data, useNavigate } from 'react-router-dom';
 
 const specialKeys = [
@@ -104,7 +104,7 @@ const LoginPage = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
-              type="password"
+              type="text"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; //send HTTP requests to the backend
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +10,7 @@ const Register = () => {
   const [errorCount, setErrorCount] = useState(0);
   const [totalKeysPressed, setTotalKeysPressed] = useState(0);
 
+  // store lastKeyUpTime and lastKey across renders
   const lastKeyUpTime = useRef(null);
   const lastKey = useRef(null);
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Register = () => {
 
     if (lastKeyUpTime.current !== null) {
       const flightTime = now - lastKeyUpTime.current;
-      setFlightTimes(prev => [...prev, { from: lastKey.current, to: key, flightTime }]);
+      setFlightTimes(prev => [...prev, { from: lastKey.current, to: key, flightTime }]); //  { from: "a", to: "b", flightTime: 150 },
     }
 
     if (key === 'Backspace' || key === 'Delete') {
@@ -34,7 +35,7 @@ const Register = () => {
   const handleKeyUp = (e) => {
     const now = Date.now();
     const key = e.key;
-    setTimingData(prev => [...prev, { key, type: 'keyup', time: now }]);
+    setTimingData(prev => [...prev, { key, type: 'keyup', time: now }]); //  { key: "a", type: "keydown", time: 1713718940000 },
     lastKeyUpTime.current = now;
     lastKey.current = key;
   };
@@ -85,7 +86,7 @@ const Register = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
-              type="password"
+              type="text"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
